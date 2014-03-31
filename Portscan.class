@@ -2,23 +2,47 @@
 
 package catz.catz.UI;
 
+import org.apache.commons.net.whois.WhoisClient;
 import java.net.Socket;
 import java.io.IOException;
+import java.net.SocketException;
 import java.net.*;
 import java.io.*;
+import javax.swing.*;
+
 /**
  *
  * @author liamgriffiths
- *(C)Catz and Liamnardo
- *This is the first class to CatzUtility
- *0.1
- *
  */
 public class Portscan extends javax.swing.JFrame {
     
+    
     public static InetAddress ipA;
+    public static String output;
+    public static Portscan obj;
     public static String hostIP;
     public static String hostName;
+    public static boolean whoison;
+    
+    
+    public String whois(String domainName) {
+        
+        StringBuilder whoisResult = new StringBuilder("");
+        WhoisClient client = new WhoisClient();
+        try{
+            client.connect(WhoisClient.DEFAULT_HOST);
+            String whoisData = client.query("=" + domainName);
+            whoisResult.append(whoisData);
+            client.disconnect();
+        } catch (SocketException e){
+            e.printStackTrace();
+        } catch (IOException e){
+            e.printStackTrace();
+        } return whoisResult.toString();
+  
+    } 
+    
+    
     
     public Portscan() {
         initComponents();
@@ -31,6 +55,8 @@ public class Portscan extends javax.swing.JFrame {
     
 
     public static void main(String args[]) throws UnknownHostException {
+        
+        obj = new Portscan();
         
         ipA = InetAddress.getLocalHost();
         hostIP = ipA.getHostAddress();
@@ -89,9 +115,15 @@ public class Portscan extends javax.swing.JFrame {
         ENDINT = new javax.swing.JTextField();
         IP = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
+        progress = new javax.swing.JProgressBar();
         jPanel2 = new javax.swing.JPanel();
         ipf = new javax.swing.JTextField();
         jButton2 = new javax.swing.JButton();
+        jPanel3 = new javax.swing.JPanel();
+        whoissite = new javax.swing.JTextField();
+        whois_controll = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        JoF = new javax.swing.JEditorPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Catz Utility");
@@ -100,6 +132,7 @@ public class Portscan extends javax.swing.JFrame {
         jTabbedPane1.setTabPlacement(javax.swing.JTabbedPane.BOTTOM);
         jTabbedPane1.setToolTipText("Portscan");
 
+        jep.setEditable(false);
         jScrollPane2.setViewportView(jep);
 
         jButton1.setText("Scan");
@@ -127,11 +160,16 @@ public class Portscan extends javax.swing.JFrame {
 
         jLabel3.setText("Scan until port:");
 
+        progress.addMouseWheelListener(new java.awt.event.MouseWheelListener() {
+            public void mouseWheelMoved(java.awt.event.MouseWheelEvent evt) {
+                progressMouseWheelMoved(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jButton1)
@@ -141,10 +179,15 @@ public class Portscan extends javax.swing.JFrame {
                         .addComponent(IP, javax.swing.GroupLayout.PREFERRED_SIZE, 253, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(0, 451, Short.MAX_VALUE))
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(jLabel3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(ENDINT, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(ENDINT, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(progress, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -158,9 +201,10 @@ public class Portscan extends javax.swing.JFrame {
                     .addComponent(ENDINT, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jButton1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(17, 17, 17)
+                .addComponent(progress, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         jTabbedPane1.addTab("Portscan", jPanel1);
@@ -180,11 +224,8 @@ public class Portscan extends javax.swing.JFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(ipf))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addContainerGap(358, Short.MAX_VALUE)
-                .addComponent(jButton2)
-                .addGap(338, 338, 338))
+                .addComponent(ipf, javax.swing.GroupLayout.DEFAULT_SIZE, 770, Short.MAX_VALUE))
+            .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -192,11 +233,44 @@ public class Portscan extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(ipf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton2)
-                .addContainerGap(251, Short.MAX_VALUE))
+                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(268, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("IP", jPanel2);
+
+        whoissite.setText("Whois site");
+
+        whois_controll.setText("Whois");
+        whois_controll.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                whois_controllActionPerformed(evt);
+            }
+        });
+
+        jScrollPane1.setViewportView(JoF);
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(whoissite, javax.swing.GroupLayout.Alignment.TRAILING)
+            .addComponent(whois_controll, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 776, Short.MAX_VALUE)
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(whoissite, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(whois_controll)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 277, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(28, Short.MAX_VALUE))
+        );
+
+        jTabbedPane1.addTab("Whois", jPanel3);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -209,9 +283,9 @@ public class Portscan extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 372, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jTabbedPane1)
                 .addGap(15, 15, 15))
         );
 
@@ -225,10 +299,19 @@ public class Portscan extends javax.swing.JFrame {
     }                                  
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {                                         
-        String remote = IP.getText();
+        
+        progress.setValue(0);
         Double endt = Double.parseDouble(ENDINT.getText());
+        String remote = IP.getText();
+        int count = 0;
+        
+        
         int i = 0;
+        jep.setText(jep.getText() + " Port scanning started on " + remote + "\n");
         do{
+            count++;
+            final int percent = count * 100;
+            progress.setValue(percent);
             try{
                 /*
                 *socket will say noy listing on any port not open.
@@ -253,6 +336,15 @@ public class Portscan extends javax.swing.JFrame {
            ipf.setText("IP: " + hostIP + "\n" + "Name: " + hostName);
     }                                        
 
+    private void progressMouseWheelMoved(java.awt.event.MouseWheelEvent evt) {                                         
+        
+    }                                        
+
+    private void whois_controllActionPerformed(java.awt.event.ActionEvent evt) {                                               
+        JoF.setText(JoF.getText() + obj.whois(whoissite.getText()));
+        JoF.setText(JoF.getText() + "\nCompleted");
+    }                                              
+
     /**
      * @param args the command line arguments
      */
@@ -260,18 +352,29 @@ public class Portscan extends javax.swing.JFrame {
     // Variables declaration - do not modify                     
     private static javax.swing.JTextField ENDINT;
     public static javax.swing.JTextField IP;
+    public static javax.swing.JEditorPane JoF;
     public static javax.swing.JTextField ipf;
-    private javax.swing.JButton jButton1;
+    public static javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTabbedPane jTabbedPane1;
     private static javax.swing.JTextPane jep;
+    private javax.swing.JProgressBar progress;
+    public static javax.swing.JButton whois_controll;
+    public static javax.swing.JTextField whoissite;
     // End of variables declaration                   
  
 
 } 
+
+//
+//(C)Liamnardo 
+//(C)Catz
+//
